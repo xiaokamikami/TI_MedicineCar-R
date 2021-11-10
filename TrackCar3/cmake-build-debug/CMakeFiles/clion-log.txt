@@ -1,0 +1,5 @@
+E:\CLion-2021.1.1.win\bin\cmake\win\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" E:\GitHub_d\TI_MedicineCar\TrackCar3
+-- Minimal optimization, debug info included
+-- Configuring done
+-- Generating done
+-- Build files have been written to: E:/GitHub_d/TI_MedicineCar/TrackCar3

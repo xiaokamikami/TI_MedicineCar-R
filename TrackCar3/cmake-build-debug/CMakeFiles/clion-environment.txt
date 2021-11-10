@@ -1,0 +1,4 @@
+ToolSet: w64 7.0 (local)@D:\software\clion\arm\Mingw64\SysGCC
+Options: 
+
+Options:

@@ -1,0 +1,3 @@
+C:/Users/lookc4/Desktop/TrackCar/cmake-build-debug/CMakeFiles/TrackCar.elf.dir
+C:/Users/lookc4/Desktop/TrackCar/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/lookc4/Desktop/TrackCar/cmake-build-debug/CMakeFiles/rebuild_cache.dir

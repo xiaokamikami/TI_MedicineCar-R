@@ -1,0 +1,26 @@
+<annotation>
+	<folder>imgs</folder>
+	<filename>IMG_20211104_175002.jpg</filename>
+	<path>F:\冯\model\imgs\IMG_20211104_175002.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>224</width>
+		<height>224</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>2</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>111</xmin>
+			<ymin>96</ymin>
+			<xmax>147</xmax>
+			<ymax>129</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,0 +1,75 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: μVision V5.31.0.0
+Copyright (C) 2020 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: 1317379456@qq.com 1317379456@qq.com, 1317379456@qq.com, LIC=HN0AE-540JS-KPVZY-I56BS-TG59Y-IT7VW
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.31.0.0
+Toolchain Path:  E:\Keil\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARMCM3.DLL V5.31.0.0
+Dialog DLL:      DCM.DLL V1.17.3.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.0.7.0
+Dialog DLL:      TCM.DLL V1.46.0.0
+ 
+<h2>Project:</h2>
+E:\BaiduNetdiskDownload\CubeMXProject\WcAct H743\TI_Car - 舵机版本\MDK-ARM\03-LCD_Test.uvprojx
+Project File Date:  06/25/2021
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'E:\Keil\ARM\ARMCC\Bin'
+Build target '03-LCD_Test'
+compiling main.c...
+..\Function\pid.h(4): warning:  #1-D: last line of file ends without a newline
+  float PID_Postion(int Infrared,int Target);    //位置PID控制器
+../Src/main.c(583): warning:  #177-D: variable "i"  was declared but never referenced
+      static unsigned char i = 0;
+../Src/main.c(43): warning:  #177-D: variable "time_slp"  was declared but never referenced
+  static int time_slp = 100;
+../Src/main.c(51): warning:  #550-D: variable "Res"  was set but never used
+  	static int Res = 0;
+../Src/main.c(53): warning:  #177-D: variable "pwm_ab"  was declared but never referenced
+  	static int pwm_ab = 0;
+../Src/main.c(57): warning:  #550-D: variable "Black_Flag"  was set but never used
+  	static uint8_t Black_Flag = 0;	//黑白计数
+../Src/main.c(333): warning:  #177-D: function "RTC_CalendarShow"  was declared but never referenced
+  static void RTC_CalendarShow(RTC_DateTypeDef *sdatestructureget,RTC_TimeTypeDef *stimestructureget)
+../Src/main.c: 7 warnings, 0 errors
+linking...
+Program Size: Code=28758 RO-data=29238 RW-data=272 ZI-data=3712  
+FromELF: creating hex file...
+".\03-LCD_Test_0_96\03-LCD_Test_0_96.axf" - 0 Error(s), 7 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.5.7.0.pack
+                ARM.CMSIS.5.7.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 5.4.0
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.STM32H7xx_DFP.2.7.0.pack
+                Keil.STM32H7xx_DFP.2.7.0
+                STMicroelectronics STM32H7 Series Device Support and Examples
+
+<h2>Collection of Component include folders:</h2>
+  .\RTE\_03-LCD_Test
+  E:\Keil\Pack\ARM\CMSIS\5.7.0\CMSIS\Core\Include
+  E:\Keil\Pack\Keil\STM32H7xx_DFP\2.7.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:5.4.0
+Build Time Elapsed:  00:00:12
+</pre>
+</body>
+</html>

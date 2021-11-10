@@ -1,0 +1,14 @@
+<annotation>
+	<folder>imgs</folder>
+	<filename>1213.jpg</filename>
+	<path>F:\模型\model\imgs\1213.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>224</width>
+		<height>244</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+</annotation>

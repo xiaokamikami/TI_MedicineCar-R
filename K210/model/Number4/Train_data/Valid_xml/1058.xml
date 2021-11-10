@@ -1,0 +1,26 @@
+<annotation>
+	<folder>imgs</folder>
+	<filename>1058.jpg</filename>
+	<path>F:\模型\model\imgs\1058.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>224</width>
+		<height>244</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>2</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>56</xmin>
+			<ymin>68</ymin>
+			<xmax>124</xmax>
+			<ymax>152</ymax>
+		</bndbox>
+	</object>
+</annotation>
