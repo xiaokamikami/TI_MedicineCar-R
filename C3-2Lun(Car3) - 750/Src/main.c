@@ -183,14 +183,120 @@ void _sys_exit(int x)
 {
     x = x;
 }
-///* 重定义fputc函数, printf函数最终会通过调用fputc输出字符串到串口 */
+//* 重定义fputc函数, printf函数最终会通过调用fputc输出字符串到串口 */
 int fputc(int ch, FILE *f)
 {
     HAL_UART_Transmit(&huart1 , (uint8_t *)&ch, 1, 0xFFF);
     return ch;
 }
 
+//**转向90度方向设置 		//1左2右
+void Turn_Set(uint8_t Mode)
+{
+	uint16_t Z_Turn = 0;
+	float Z_Angle = 0;
+	
+	if(Mode == 2)
+	{
+			Motor_X(0);
+			//*** 右转90 度  MPU应该减小90       小于90的初始值  (越0跳360)转向目标值是LOCK+270  //LOCK+270 = 360+LOCK-90
+			mpu_dmp_get_data(&Gyro[2]);  
+			Z_Angle = Gyro[2];
+			Motor_X(4);
+			if(Z_Angle <=91)
+			{
+				Z_Turn = Z_Angle +270;
+				//重新判定
+				R1:
+				if(Gyro[2] >180)
+				{
+					while(1)
+					{		 
+						//mpu_dmp_get_data(&Gyro[2]);
+						printf("RRRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
+						if(Gyro[2] < Z_Turn)
+						{
+							Motor_X(0);
+							printf("R_END");
+							return;
+						}
+					}					
+				}
+				else
+				{
+					printf("RRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
+					//mpu_dmp_get_data(&Gyro[2]);
+					goto R1;
+				}
+					
 
+			}
+			else
+			{
+				Z_Turn = Z_Angle -90;
+				while(1)
+				{		 
+					//mpu_dmp_get_data(&Gyro[2]);
+					printf("RF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
+					if(Gyro[2] < Z_Turn )
+					{
+						Motor_X(0);
+						printf("R_END");
+						return;
+					}
+				}
+			}	
+	}
+	else if(Mode == 1)
+	{
+			Motor_X(0);
+			//*** 左转90 度  MPU应该增加90   
+			mpu_dmp_get_data(&Gyro[2]);
+			Z_Angle = Gyro[2];
+			Motor_X(3);
+			if(Z_Angle >=271)
+			{
+				Z_Turn = Z_Angle -270;
+				//重新判定
+				L1:
+				if(Gyro[2] < 180)
+				{
+					while(1 )
+					{
+						//mpu_dmp_get_data(&Gyro[2]);
+						printf("LLLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
+						if(Gyro[2] > Z_Turn)
+						{
+							Motor_X(0);
+							printf("L_END");
+							return;
+						}		
+					}					
+				}
+				else
+				{
+					printf("LLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
+					//mpu_dmp_get_data(&Gyro[2]);
+					goto L1;
+				}
+			}
+			else
+			{
+				Z_Turn = Z_Angle +90;
+				while(1)
+				{
+					printf("LF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
+					if(Gyro[2] > Z_Turn )
+					{
+						Motor_X(0);
+						printf("L_END");
+						return;
+					}					
+				}			
+			}	
+	}
+	Motor_X(0);
+}
 //***功能函数区
 
 /* USER CODE END 0 */
@@ -212,7 +318,8 @@ int main(void)
 	MotorOutput1 = 300;
 	MotorOutput2 = 300;
 	int i =0;
-	float Z_Angle = 0;
+//	float Z_Angle = 0;
+//	uint8_t Z_Turn = 0;
 	uint8_t recv = 0x00;
   /* USER CODE END 1 */
 
@@ -256,20 +363,20 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
+	Motor_X(0);
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,350);//调试用
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,350);//调试用
 
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
-	//HAL_TIM_Base_Start_IT(&htim6);                // 使能定时器中断(5ms)
+	HAL_TIM_Base_Start_IT(&htim6);                // 使能定时器中断(5ms)
 //	for(i = 0;i<5;i++)
 //	{
 //		Motor_X(i);
 //		HAL_Delay(1000);
 //	}
 	
-	
+	//重新设置返回点
 	RESET:
 	  /*
    *iic读取器件ID
@@ -294,6 +401,9 @@ int main(void)
 	  {
 		HAL_Delay(200);
 	  }
+	  HAL_Delay(500);
+	  //重开任务返回点
+	  REMAKE:
 	  /*
 	  等待数字输入
 	  */
@@ -306,31 +416,23 @@ int main(void)
 	  {  
 		for(i = 0;i<5;i++)
 		{
-			//*** 左转90 度
-			mpu_dmp_get_data(&Gyro[0],&Gyro[1],&Gyro[2]);
-			Z_Angle = Gyro[2];
-			Motor_X(3);
-			while((Z_Angle -70) < Gyro[2] )
-			{		 
-				mpu_dmp_get_data(&Gyro[0],&Gyro[1],&Gyro[2]);
-				printf("LOCK=%.2f,Z=%.2f\r\n",Z_Angle,Gyro[2]);				
-			}
-			Motor_X(0);
-			//*** 左转结束			
+			Turn_Set(1);
+			//*** 右转结束			
 			HAL_Delay(2000);
-			
-			//*** 右转90 度
-			mpu_dmp_get_data(&Gyro[0],&Gyro[1],&Gyro[2]);
-			Z_Angle = Gyro[2];
-			Motor_X(4);
-			while((Z_Angle + 70) > Gyro[2] )
-			{
-				mpu_dmp_get_data(&Gyro[0],&Gyro[1],&Gyro[2]);
-				printf("LOCK=%.2f,Z=%.2f\r\n",Z_Angle,Gyro[2]);				
-			}
-			Motor_X(0);
+			Turn_Set(1);
+			HAL_Delay(2000);
+			Turn_Set(1);
+			HAL_Delay(2000);
+			Turn_Set(1);
+			HAL_Delay(2000);
+			Turn_Set(2);
 			//*** 左转结束
 			HAL_Delay(2000);
+			Turn_Set(2);
+			HAL_Delay(2000);
+			Turn_Set(2);
+			HAL_Delay(2000);
+			Turn_Set(2);
 		}
 	
 	  }
@@ -422,10 +524,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 
     if (htim == (&htim6))
-    {	
-		mpu_dmp_get_data(&Gyro[0],&Gyro[1],&Gyro[2]);  
+    {	//精简计算 只获取Z轴角度 
+		mpu_dmp_get_data(/*&Gyro[0],&Gyro[1],*/&Gyro[2]);  
+
 		//printf("X=%.2f,Y=%.2f,Z=%.2f\r\n",Gyro[0],Gyro[1],Gyro[2]);
-			
+		//printf("Z=%.2f\r\n",Gyro[2]);
     }
 
 }

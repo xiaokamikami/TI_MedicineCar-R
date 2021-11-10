@@ -3085,7 +3085,7 @@ u8 mpu_dmp_init(void)
 //yaw:航向角   精度:0.1°   范围:-180.0°<---> +180.0°
 //返回值:0,正常
 //    其他,失败
-u8 mpu_dmp_get_data(float *pitch, float *roll, float *yaw)
+u8 mpu_dmp_get_data(/*float *pitch, float *roll,*/ float *yaw)
 {
     float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;
     unsigned long sensor_timestamp;
@@ -3113,7 +3113,7 @@ u8 mpu_dmp_get_data(float *pitch, float *roll, float *yaw)
         //计算得到俯仰角/横滚角/航向角
         //*pitch = asin(-2 * q1 * q3 + 2 * q0 * q2) * 57.3;                                    // pitch
         //*roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3;     // roll
-        *yaw = atan2(2 * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3; //yaw
+        *yaw = (atan2(2 * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3)+180; //yaw
     }
     else
         return 2;
