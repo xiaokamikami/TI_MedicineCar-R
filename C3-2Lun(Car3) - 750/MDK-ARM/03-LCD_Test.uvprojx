@@ -740,6 +740,11 @@
               <FileType>1</FileType>
               <FilePath>..\mpu6050\eMPL\inv_mpu_dmp_motion_driver.c</FilePath>
             </File>
+            <File>
+              <FileName>GoRoom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\GoRoom.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1429,6 +1434,11 @@
               <FileName>inv_mpu_dmp_motion_driver.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\mpu6050\eMPL\inv_mpu_dmp_motion_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>GoRoom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\GoRoom.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2120,6 +2130,11 @@
               <FileType>1</FileType>
               <FilePath>..\mpu6050\eMPL\inv_mpu_dmp_motion_driver.c</FilePath>
             </File>
+            <File>
+              <FileName>GoRoom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\GoRoom.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2809,6 +2824,11 @@
               <FileName>inv_mpu_dmp_motion_driver.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\mpu6050\eMPL\inv_mpu_dmp_motion_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>GoRoom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\GoRoom.c</FilePath>
             </File>
           </Files>
         </Group>

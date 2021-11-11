@@ -104,9 +104,9 @@ while (True):
                 drawConfidenceText(img, (0, 0), classID, confidence)
             _ = lcd.display(img)
 
-            ball_dict["x"]   = print_args[0]
+            #ball_dict["x"]   = print_args[0]
             #ball_dict["v"]   = print_args[1]
-            ball_dict["n"]  = (print_args[2]+1)
+            #ball_dict["n"]  = (print_args[2]+1)
 
 
             if(confidence > 0.6):

@@ -36,6 +36,7 @@
 #include "string.h"
 #include "mpu6050.h"
 #include "inv_mpu.h"
+#include "GoRoom.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -197,7 +198,7 @@ int fputc(int ch, FILE *f)
 
 /*
 读取摄像头值
-用法: K210向串口发送 [xxx,yyy]  X是摄像头读取到的横坐标  Y是数字序号
+用法: K210向串口发送 [xxx,yyy]  X是数字序号  Y是摄像头读取到的横坐标 
 */
 u8 K210_Read(void )
 {
@@ -224,46 +225,20 @@ u8 K210_Read(void )
             }
         }
 
-        Cama_X = atoi(&xx[0]);//(atoi():是一个把字符串转换为整型的函数)
-        Cama_N = atoi(&yy[0]);
-        printf("X=%d\n", Cama_X);//以Uart1为通道通过重定向函数printf()打印x,y数据
-        printf("Num=%d\n", Cama_N);
+        Cama_N = atoi(&xx[0]);//(atoi():是一个把字符串转换为整型的函数)
+        Cama_X = atoi(&yy[0]);
+        printf("NUM=%d\n", Cama_X);//以Uart1为通道通过重定向函数printf()打印x,y数据
+        printf("X=%d\n", Cama_N);
+		HAL_UART_Receive_IT(&huart2, (uint8_t *)UART2_temp, 1);
+		
+	}
+	if(Cama_N != 0)
+	{
+		return 1;
 	}
 }
 
-/*
-锁直线巡线	循迹版  
-功能:该函数将使小车尽力保持在直线上
-返回值:读取到的黑/红线数量
-*/
-u8 Lock_Line(void )
-{
-	u8 Res_n = 0;
-	u8 SP_differential = 0;  //差速值储存
-	Res_n = 0;
-	
-	if(HAL_GPIO_ReadPin(RE1_GPIO_Port,RE1_Pin)==1)	{SP_differential =40;Res_n+=1;}		//左偏限位
-	if(HAL_GPIO_ReadPin(RE2_GPIO_Port,RE2_Pin)==1)	{SP_differential =30;Res_n+=1;}	//左偏
-	if(HAL_GPIO_ReadPin(RE3_GPIO_Port,RE3_Pin)==1)	{SP_differential =10;Res_n+=1;}	//巡线中位
-	if(HAL_GPIO_ReadPin(RE4_GPIO_Port,RE4_Pin)==1)	{SP_differential =0;Res_n+=1;}	//巡线中位
-	if(HAL_GPIO_ReadPin(RE5_GPIO_Port,RE5_Pin)==1)	{SP_differential =-10;Res_n+=1;}	//右偏	
-	if(HAL_GPIO_ReadPin(RE6_GPIO_Port,RE6_Pin)==1)	{SP_differential =-30;Res_n+=1;}		//右偏限
-	
 
-	if(Res_n == 0)
-	{return Res_n;}//没检查到线 跳过
-	//有线 进入差速控制段
-	else if(Res_n == 1)
-	{
-		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,280+SP_differential);//转弯降低速度转
-		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,280-SP_differential);//
-	}
-	else if(Res_n > 1)	//测到多个标记 停车
-	{
-		Motor_X(0);
-	}
-	return Res_n;
-}
 
 
 /* 
@@ -398,10 +373,13 @@ int main(void)
 	MotorOutput1 = 300;
 	MotorOutput2 = 300;
 	int i =0;
+	u8 Num_temporary = 0;	//数字缓存
+	u8 Num_Lock  = 0;		//数字确定
+	u8 Num_Renum = 0;       //锁定次数  5次确定
 //	float Z_Angle = 0;
 //	uint8_t Z_Turn = 0;
 	uint8_t recv = 0x00;
-	u8 Res_num = 0;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -433,8 +411,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	LCD_Test();
   	__HAL_UART_CLEAR_IDLEFLAG(&huart2);
-	
-//	HAL_UART_Receive_IT(&huart2, (uint8_t *)RXbuf, 1); 
+	HAL_UART_Receive_IT(&huart2, (uint8_t *)UART2_temp, 1); 
 
 //	sprintf((char *)&text,"TI_Car");
 //	LCD_ShowString(4, 6, 160, 14, 14, text);
@@ -485,18 +462,41 @@ int main(void)
 	  //重开任务返回点
 	  REMAKE:
 	  /*
+	  
 	  等待数字输入
 	  */
-		
+		while(Num_Renum < 5)
+		{
+			if(K210_Read() ==1)
+			{
+				if(Num_temporary != Cama_N)
+				{
+					Num_temporary = Cama_N;
+					Num_Renum = 0;
+				}
+				else
+				{
+					Num_Renum +=1;
+				}
+			printf("Get:%d",Num_temporary);
+			}	
+		}
+
+		//*****满五次跳出 确定数字无误
+		Num_Lock = Num_temporary;  //锁定数字
 	  /*
 	  开始运行
 	  */	  
+		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,300);//
+		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,300);//
 	  //Motor_X(3);
 	  while (1)
 	  {  
-		  
-		  //**巡线等第一个十字
-			Res_num = Lock_Line();
+		  if(Num_Lock <=2)
+		  {
+			  GOROOM1(Num_Lock);
+		  }
+
 	
 	  }
 
