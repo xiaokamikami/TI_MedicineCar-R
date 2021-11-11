@@ -46,11 +46,16 @@ static uint8_t recv_end_flag = 0 ; //串口接收标志
 //********
 int Cama_X =0;	  		// 全局变量，相机X轴
 int Cama_N =0;	  		// 全局变量，相机读取数字
-
+static char xx[5],yy[5];
 static float Gyro[3];
 
 static uint8_t lcdbuff[20]; //UART字符
 static char uart1_buff[20]; //UART字符
+
+static unsigned char UART2_Rx_Buf[512] = {0}; //USART2存储接收数据
+static unsigned char UART2_Rx_flg = 0;                   //USART2接收完成标志
+static unsigned int  UART2_Rx_cnt = 0;                   //USART2接受数据计数器
+static unsigned char UART2_temp[1] = {0};       //USART2接收数据缓存
 
 /* USER CODE END PTD */
 
@@ -183,19 +188,94 @@ void _sys_exit(int x)
 {
     x = x;
 }
-//* 重定义fputc函数, printf函数最终会通过调用fputc输出字符串到串口 */
+/* 重定义fputc函数, printf函数最终会通过调用fputc输出字符串到串口 */
 int fputc(int ch, FILE *f)
 {
     HAL_UART_Transmit(&huart1 , (uint8_t *)&ch, 1, 0xFFF);
     return ch;
 }
 
-//**转向90度方向设置 		//1左2右
+/*
+读取摄像头值
+用法: K210向串口发送 [xxx,yyy]  X是摄像头读取到的横坐标  Y是数字序号
+*/
+u8 K210_Read(void )
+{
+	int x=0,y=0,z=0,t=0;
+    if(UART2_Rx_flg)//接收完成标志（判断是否接收完数据）
+    {
+        printf("--------2-------\n");
+        for (t = 0; t < UART2_Rx_cnt; t++)//通过Uart2接收数据计数器来确定数据所处的位
+        {
+            /* 原始数据为：[xxx,yyy] 此段为去除‘[’‘,’‘]’三个符号，仅留x,y的数据*/
+            if (UART2_Rx_Buf[t] == '[')x = 1, y = 0;
+            if (UART2_Rx_Buf[t] == ',') {
+                x = 0, y = 1;
+                xx[t - 1] = '\0';
+            }
+            if (UART2_Rx_Buf[t] == ']') {
+                yy[z] = '\0';
+                x = 0, y = 0, z = 0;
+            }
+            if (x == 1 && UART2_Rx_Buf[t] != '[')xx[t - 1] = UART2_Rx_Buf[t];
+            if (y == 1 && UART2_Rx_Buf[t] != ',') {
+                yy[z] = UART2_Rx_Buf[t];
+                z++;
+            }
+        }
+
+        Cama_X = atoi(&xx[0]);//(atoi():是一个把字符串转换为整型的函数)
+        Cama_N = atoi(&yy[0]);
+        printf("X=%d\n", Cama_X);//以Uart1为通道通过重定向函数printf()打印x,y数据
+        printf("Num=%d\n", Cama_N);
+	}
+}
+
+/*
+锁直线巡线	循迹版  
+功能:该函数将使小车尽力保持在直线上
+返回值:读取到的黑/红线数量
+*/
+u8 Lock_Line(void )
+{
+	u8 Res_n = 0;
+	u8 SP_differential = 0;  //差速值储存
+	Res_n = 0;
+	
+	if(HAL_GPIO_ReadPin(RE1_GPIO_Port,RE1_Pin)==1)	{SP_differential =40;Res_n+=1;}		//左偏限位
+	if(HAL_GPIO_ReadPin(RE2_GPIO_Port,RE2_Pin)==1)	{SP_differential =30;Res_n+=1;}	//左偏
+	if(HAL_GPIO_ReadPin(RE3_GPIO_Port,RE3_Pin)==1)	{SP_differential =10;Res_n+=1;}	//巡线中位
+	if(HAL_GPIO_ReadPin(RE4_GPIO_Port,RE4_Pin)==1)	{SP_differential =0;Res_n+=1;}	//巡线中位
+	if(HAL_GPIO_ReadPin(RE5_GPIO_Port,RE5_Pin)==1)	{SP_differential =-10;Res_n+=1;}	//右偏	
+	if(HAL_GPIO_ReadPin(RE6_GPIO_Port,RE6_Pin)==1)	{SP_differential =-30;Res_n+=1;}		//右偏限
+	
+
+	if(Res_n == 0)
+	{return Res_n;}//没检查到线 跳过
+	//有线 进入差速控制段
+	else if(Res_n == 1)
+	{
+		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,280+SP_differential);//转弯降低速度转
+		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,280-SP_differential);//
+	}
+	else if(Res_n > 1)	//测到多个标记 停车
+	{
+		Motor_X(0);
+	}
+	return Res_n;
+}
+
+
+/* 
+功能:转向90度		会提前5度停下防止过冲
+使用方式:1左2右
+*/
 void Turn_Set(uint8_t Mode)
 {
 	uint16_t Z_Turn = 0;
 	float Z_Angle = 0;
-	
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,280);//转弯降低速度转
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,280);//
 	if(Mode == 2)
 	{
 			Motor_X(0);
@@ -205,7 +285,7 @@ void Turn_Set(uint8_t Mode)
 			Motor_X(4);
 			if(Z_Angle <=91)
 			{
-				Z_Turn = Z_Angle +270;
+				Z_Turn = Z_Angle +275;
 				//重新判定
 				R1:
 				if(Gyro[2] >180)
@@ -213,7 +293,7 @@ void Turn_Set(uint8_t Mode)
 					while(1)
 					{		 
 						//mpu_dmp_get_data(&Gyro[2]);
-						printf("RRRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
+						//printf("RRRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
 						if(Gyro[2] < Z_Turn)
 						{
 							Motor_X(0);
@@ -224,7 +304,7 @@ void Turn_Set(uint8_t Mode)
 				}
 				else
 				{
-					printf("RRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
+					//printf("RRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
 					//mpu_dmp_get_data(&Gyro[2]);
 					goto R1;
 				}
@@ -233,11 +313,11 @@ void Turn_Set(uint8_t Mode)
 			}
 			else
 			{
-				Z_Turn = Z_Angle -90;
+				Z_Turn = Z_Angle -85;
 				while(1)
 				{		 
 					//mpu_dmp_get_data(&Gyro[2]);
-					printf("RF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
+					//printf("RF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
 					if(Gyro[2] < Z_Turn )
 					{
 						Motor_X(0);
@@ -256,7 +336,7 @@ void Turn_Set(uint8_t Mode)
 			Motor_X(3);
 			if(Z_Angle >=271)
 			{
-				Z_Turn = Z_Angle -270;
+				Z_Turn = Z_Angle -275;
 				//重新判定
 				L1:
 				if(Gyro[2] < 180)
@@ -264,7 +344,7 @@ void Turn_Set(uint8_t Mode)
 					while(1 )
 					{
 						//mpu_dmp_get_data(&Gyro[2]);
-						printf("LLLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
+						//printf("LLLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
 						if(Gyro[2] > Z_Turn)
 						{
 							Motor_X(0);
@@ -275,17 +355,17 @@ void Turn_Set(uint8_t Mode)
 				}
 				else
 				{
-					printf("LLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
+					//printf("LLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
 					//mpu_dmp_get_data(&Gyro[2]);
 					goto L1;
 				}
 			}
 			else
 			{
-				Z_Turn = Z_Angle +90;
+				Z_Turn = Z_Angle +85;
 				while(1)
 				{
-					printf("LF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
+					//printf("LF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
 					if(Gyro[2] > Z_Turn )
 					{
 						Motor_X(0);
@@ -321,6 +401,7 @@ int main(void)
 //	float Z_Angle = 0;
 //	uint8_t Z_Turn = 0;
 	uint8_t recv = 0x00;
+	u8 Res_num = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -345,7 +426,6 @@ int main(void)
   MX_SPI4_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
-  MX_TIM3_Init();
   MX_USART2_UART_Init();
   MX_TIM6_Init();
   MX_USART1_UART_Init();
@@ -407,33 +487,16 @@ int main(void)
 	  /*
 	  等待数字输入
 	  */
-	  
+		
 	  /*
 	  开始运行
 	  */	  
 	  //Motor_X(3);
 	  while (1)
 	  {  
-		for(i = 0;i<5;i++)
-		{
-			Turn_Set(1);
-			//*** 右转结束			
-			HAL_Delay(2000);
-			Turn_Set(1);
-			HAL_Delay(2000);
-			Turn_Set(1);
-			HAL_Delay(2000);
-			Turn_Set(1);
-			HAL_Delay(2000);
-			Turn_Set(2);
-			//*** 左转结束
-			HAL_Delay(2000);
-			Turn_Set(2);
-			HAL_Delay(2000);
-			Turn_Set(2);
-			HAL_Delay(2000);
-			Turn_Set(2);
-		}
+		  
+		  //**巡线等第一个十字
+			Res_num = Lock_Line();
 	
 	  }
 
@@ -511,14 +574,16 @@ void SystemClock_Config(void)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	//HAL_GPIO_TogglePin(E3_GPIO_Port,E3_Pin);
-	if(huart ==(&huart2))
-	{
-		//HAL_UART_Transmit(&huart1,(uint8_t *)RXbuf,8,100);
-//		if(recv_end_flag == 0){
-//			recv_end_flag = 1;
-//		}
-	}
+    if(huart->Instance==USART2)
+    {
+        UART2_Rx_Buf[UART2_Rx_cnt] = UART2_temp[0];
+        UART2_Rx_cnt++;
+        if(0x0a == UART2_temp[0])
+        {
+            UART2_Rx_flg = 1;
+        }
 
+    }
 }
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {

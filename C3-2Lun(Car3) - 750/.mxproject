@@ -7,8 +7,8 @@ HeaderPath=..\Drivers\STM32H7xx_HAL_Driver\Inc;..\Drivers\STM32H7xx_HAL_Driver\I
 CDefines=USE_HAL_DRIVER;STM32H750xx;USE_HAL_DRIVER;USE_HAL_DRIVER;
 
 [PreviousGenFiles]
-HeaderPath=E:/GitHub_d/TI_MedicineCar/C3-2Lun(Car3) - 750/Inc
+HeaderPath=E:/GitHub_d/TI_MedicineCar-R/C3-2Lun(Car3) - 750/Inc
 HeaderFiles=gpio.h;i2c.h;rtc.h;spi.h;tim.h;usart.h;stm32h7xx_it.h;stm32h7xx_hal_conf.h;main.h;
-SourcePath=E:/GitHub_d/TI_MedicineCar/C3-2Lun(Car3) - 750/Src
+SourcePath=E:/GitHub_d/TI_MedicineCar-R/C3-2Lun(Car3) - 750/Src
 SourceFiles=gpio.c;i2c.c;rtc.c;spi.c;tim.c;usart.c;stm32h7xx_it.c;stm32h7xx_hal_msp.c;main.c;
 

@@ -5,13 +5,13 @@
 # compile C with C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major/bin/arm-none-eabi-gcc.exe
 ASM_DEFINES = -DSTM32F103xE -DUSE_HAL_DRIVER
 
-ASM_INCLUDES = -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Core\Inc -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Drivers\STM32F1xx_HAL_Driver\Inc -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Drivers\CMSIS\Device\ST\STM32F1xx\Include -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Drivers\CMSIS\Include -IE:\GitHub_d\TI_MedicineCar\TrackCar3\User\mystdio -IE:\GitHub_d\TI_MedicineCar\TrackCar3\User\Mode -IE:\GitHub_d\TI_MedicineCar\TrackCar3\User\Date
+ASM_INCLUDES = -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Core\Inc -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Drivers\STM32F1xx_HAL_Driver\Inc -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Drivers\CMSIS\Device\ST\STM32F1xx\Include -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Drivers\CMSIS\Include -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\User\mystdio -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\User\Mode -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\User\Date
 
 ASM_FLAGS = -g -mcpu=cortex-m3 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g
 
 C_DEFINES = -DSTM32F103xE -DUSE_HAL_DRIVER
 
-C_INCLUDES = -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Core\Inc -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Drivers\STM32F1xx_HAL_Driver\Inc -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Drivers\CMSIS\Device\ST\STM32F1xx\Include -IE:\GitHub_d\TI_MedicineCar\TrackCar3\Drivers\CMSIS\Include -IE:\GitHub_d\TI_MedicineCar\TrackCar3\User\mystdio -IE:\GitHub_d\TI_MedicineCar\TrackCar3\User\Mode -IE:\GitHub_d\TI_MedicineCar\TrackCar3\User\Date
+C_INCLUDES = -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Core\Inc -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Drivers\STM32F1xx_HAL_Driver\Inc -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Drivers\CMSIS\Device\ST\STM32F1xx\Include -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\Drivers\CMSIS\Include -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\User\mystdio -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\User\Mode -IE:\GitHub_d\TI_MedicineCar-R\TrackCar3\User\Date
 
 C_FLAGS = -g -mcpu=cortex-m3 -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -Og -g -std=gnu11
 

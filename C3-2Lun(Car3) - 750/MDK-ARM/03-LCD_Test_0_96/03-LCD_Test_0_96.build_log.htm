@@ -22,7 +22,7 @@ Dialog DLL:      TCM.DLL V1.46.0.0
  
 <h2>Project:</h2>
 E:\GitHub_d\TI_MedicineCar-R\C3-2Lun(Car3) - 750\MDK-ARM\03-LCD_Test.uvprojx
-Project File Date:  11/09/2021
+Project File Date:  11/11/2021
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'E:\Keil\ARM\ARMCC\Bin'
@@ -30,9 +30,19 @@ Build target '03-LCD_Test'
 compiling main.c...
 ..\Function\pid.h(4): warning:  #1-D: last line of file ends without a newline
   float PID_Postion(int Infrared,int Target);    //位置PID控制器
-../Src/main.c(440): warning:  #111-D: statement is unreachable
+../Src/main.c(232): warning:  #940-D: missing return statement at end of non-void function "K210_Read" 
+  }
+../Src/main.c(249): warning:  #68-D: integer conversion resulted in a change of sign
+  	if(HAL_GPIO_ReadPin(RE5_GPIO_Port,RE5_Pin)==1)	{SP_differential =-10;Res_n+=1;}	//右偏	
+../Src/main.c(250): warning:  #68-D: integer conversion resulted in a change of sign
+  	if(HAL_GPIO_ReadPin(RE6_GPIO_Port,RE6_Pin)==1)	{SP_differential =-30;Res_n+=1;}		//右偏限
+../Src/main.c(503): warning:  #111-D: statement is unreachable
   	printf("END！\r\n");
-../Src/main.c(406): warning:  #177-D: label "REMAKE"  was declared but never referenced
+../Src/main.c(400): warning:  #177-D: variable "i"  was declared but never referenced
+  	int i =0;
+../Src/main.c(404): warning:  #550-D: variable "Res_num"  was set but never used
+  	u8 Res_num = 0;
+../Src/main.c(486): warning:  #177-D: label "REMAKE"  was declared but never referenced
   	  REMAKE:
 ../Src/main.c(45): warning:  #177-D: variable "recv_end_flag"  was declared but never referenced
   static uint8_t recv_end_flag = 0 ; //串口接收标志
@@ -40,17 +50,17 @@ compiling main.c...
   static uint8_t lcdbuff[20]; //UART字符
 ../Src/main.c(53): warning:  #177-D: variable "uart1_buff"  was declared but never referenced
   static char uart1_buff[20]; //UART字符
-../Src/main.c(65): warning:  #177-D: function "Motor_Locat"  was declared but never referenced
+../Src/main.c(70): warning:  #177-D: function "Motor_Locat"  was declared but never referenced
   static void Motor_Locat(int SpeedTarget1,int SpeedTarget2){
-../Src/main.c(68): warning:  #177-D: function "DockV"  was declared but never referenced
+../Src/main.c(73): warning:  #177-D: function "DockV"  was declared but never referenced
   static void DockV(uint16_t Dock1,uint16_t Dock2){
-../Src/main.c(152): warning:  #177-D: function "RTC_CalendarShow"  was declared but never referenced
+../Src/main.c(157): warning:  #177-D: function "RTC_CalendarShow"  was declared but never referenced
   static void RTC_CalendarShow(RTC_DateTypeDef *sdatestructureget,RTC_TimeTypeDef *stimestructureget)
-../Src/main.c: 9 warnings, 0 errors
+../Src/main.c: 14 warnings, 0 errors
 linking...
-Program Size: Code=43410 RO-data=32702 RW-data=236 ZI-data=3852  
+Program Size: Code=38886 RO-data=32534 RW-data=236 ZI-data=4292  
 FromELF: creating hex file...
-".\03-LCD_Test_0_96\03-LCD_Test_0_96.axf" - 0 Error(s), 9 Warning(s).
+".\03-LCD_Test_0_96\03-LCD_Test_0_96.axf" - 0 Error(s), 14 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -73,7 +83,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.4.0
-Build Time Elapsed:  00:00:14
+Build Time Elapsed:  00:00:13
 </pre>
 </body>
 </html>

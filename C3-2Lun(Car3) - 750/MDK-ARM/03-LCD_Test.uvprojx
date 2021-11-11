@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,TFT96,STM32H750xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;    ../Drivers/STM32H7xx_HAL_Driver/Inc;    ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;    ../Drivers/CMSIS/Device/ST/STM32H7xx/Include;    ../Drivers/CMSIS/Include;    ..\Drivers\BSP\ST7735;    ..\Function;    ..\mpu6050;    ..\mpu6050\eMPL</IncludePath>
+              <IncludePath>../Inc;     ../Drivers/STM32H7xx_HAL_Driver/Inc;     ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;     ../Drivers/CMSIS/Device/ST/STM32H7xx/Include;     ../Drivers/CMSIS/Include;     ..\Drivers\BSP\ST7735;     ..\Function;     ..\mpu6050;     ..\mpu6050\eMPL</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
