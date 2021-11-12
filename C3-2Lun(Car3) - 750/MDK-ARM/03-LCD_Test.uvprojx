@@ -745,6 +745,11 @@
               <FileType>1</FileType>
               <FilePath>..\Function\GoRoom.c</FilePath>
             </File>
+            <File>
+              <FileName>OpenmvData.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\OpenmvData.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1439,6 +1444,11 @@
               <FileName>GoRoom.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Function\GoRoom.c</FilePath>
+            </File>
+            <File>
+              <FileName>OpenmvData.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\OpenmvData.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2135,6 +2145,11 @@
               <FileType>1</FileType>
               <FilePath>..\Function\GoRoom.c</FilePath>
             </File>
+            <File>
+              <FileName>OpenmvData.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\OpenmvData.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2829,6 +2844,11 @@
               <FileName>GoRoom.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Function\GoRoom.c</FilePath>
+            </File>
+            <File>
+              <FileName>OpenmvData.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\OpenmvData.c</FilePath>
             </File>
           </Files>
         </Group>

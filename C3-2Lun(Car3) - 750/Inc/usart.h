@@ -35,7 +35,13 @@ extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN Private defines */
+#define REC_LENGTH  1																//接收数据的长度
+#define MAX_REC_LENGTH  1024 												//接收数据的最大长度
 
+extern unsigned char UART2_Rx_Buf[MAX_REC_LENGTH]; //USART2存储接收数据
+extern unsigned char UART2_Rx_flg ;                   //USART2接收完成标志
+extern unsigned int  UART2_Rx_cnt ;                   //USART2接受数据计数器
+extern unsigned char UART2_temp[REC_LENGTH];       //USART2接收数据缓存
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);

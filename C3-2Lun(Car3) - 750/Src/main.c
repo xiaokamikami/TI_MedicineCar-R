@@ -37,26 +37,20 @@
 #include "mpu6050.h"
 #include "inv_mpu.h"
 #include "GoRoom.h"
+#include "OpenmvData.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
 //****串口变量***
-static uint8_t recv_end_flag = 0 ; //串口接收标志
-//********
-int Cama_X =0;	  		// 全局变量，相机X轴
-int Cama_N =0;	  		// 全局变量，相机读取数字
-static char xx[5],yy[5];
+
 static float Gyro[3];
 
 static uint8_t lcdbuff[20]; //UART字符
 static char uart1_buff[20]; //UART字符
 
-static unsigned char UART2_Rx_Buf[512] = {0}; //USART2存储接收数据
-static unsigned char UART2_Rx_flg = 0;                   //USART2接收完成标志
-static unsigned int  UART2_Rx_cnt = 0;                   //USART2接受数据计数器
-static unsigned char UART2_temp[1] = {0};       //USART2接收数据缓存
+
 
 /* USER CODE END PTD */
 
@@ -71,13 +65,7 @@ static unsigned char UART2_temp[1] = {0};       //USART2接收数据缓存
 static void Motor_Locat(int SpeedTarget1,int SpeedTarget2){
 	
 }
-static void DockV(uint16_t Dock1,uint16_t Dock2){
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,Dock1);//调试用
-	
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,Dock2);//调试用
-	
-	HAL_Delay(100);
-}
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -196,47 +184,7 @@ int fputc(int ch, FILE *f)
     return ch;
 }
 
-/*
-读取摄像头值
-用法: K210向串口发送 [xxx,yyy]  X是数字序号  Y是摄像头读取到的横坐标 
-*/
-u8 K210_Read(void )
-{
-	int x=0,y=0,z=0,t=0;
-    if(UART2_Rx_flg)//接收完成标志（判断是否接收完数据）
-    {
-        printf("--------2-------\n");
-        for (t = 0; t < UART2_Rx_cnt; t++)//通过Uart2接收数据计数器来确定数据所处的位
-        {
-            /* 原始数据为：[xxx,yyy] 此段为去除‘[’‘,’‘]’三个符号，仅留x,y的数据*/
-            if (UART2_Rx_Buf[t] == '[')x = 1, y = 0;
-            if (UART2_Rx_Buf[t] == ',') {
-                x = 0, y = 1;
-                xx[t - 1] = '\0';
-            }
-            if (UART2_Rx_Buf[t] == ']') {
-                yy[z] = '\0';
-                x = 0, y = 0, z = 0;
-            }
-            if (x == 1 && UART2_Rx_Buf[t] != '[')xx[t - 1] = UART2_Rx_Buf[t];
-            if (y == 1 && UART2_Rx_Buf[t] != ',') {
-                yy[z] = UART2_Rx_Buf[t];
-                z++;
-            }
-        }
 
-        Cama_N = atoi(&xx[0]);//(atoi():是一个把字符串转换为整型的函数)
-        Cama_X = atoi(&yy[0]);
-        printf("NUM=%d\n", Cama_X);//以Uart1为通道通过重定向函数printf()打印x,y数据
-        printf("X=%d\n", Cama_N);
-		HAL_UART_Receive_IT(&huart2, (uint8_t *)UART2_temp, 1);
-		
-	}
-	if(Cama_N != 0)
-	{
-		return 1;
-	}
-}
 
 
 
@@ -249,8 +197,6 @@ void Turn_Set(uint8_t Mode)
 {
 	uint16_t Z_Turn = 0;
 	float Z_Angle = 0;
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,280);//转弯降低速度转
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,280);//
 	if(Mode == 2)
 	{
 			Motor_X(0);
@@ -411,7 +357,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	LCD_Test();
   	__HAL_UART_CLEAR_IDLEFLAG(&huart2);
-	HAL_UART_Receive_IT(&huart2, (uint8_t *)UART2_temp, 1); 
+	
 
 //	sprintf((char *)&text,"TI_Car");
 //	LCD_ShowString(4, 6, 160, 14, 14, text);
@@ -461,41 +407,54 @@ int main(void)
 	  HAL_Delay(500);
 	  //重开任务返回点
 	  REMAKE:
+	  Num_Renum = 0;
 	  /*
-	  
 	  等待数字输入
 	  */
 		while(Num_Renum < 5)
 		{
-			if(K210_Read() ==1)
+			if( OpenmvData())
 			{
-				if(Num_temporary != Cama_N)
+				if(Num_temporary != Xdate && Xdate != 0)
 				{
-					Num_temporary = Cama_N;
+					Num_temporary = Xdate;
 					Num_Renum = 0;
 				}
 				else
 				{
 					Num_Renum +=1;
 				}
-			printf("Get:%d",Num_temporary);
+				printf("Getnum:%d",Num_temporary);
 			}	
+			//printf("Noone");
 		}
 
 		//*****满五次跳出 确定数字无误
 		Num_Lock = Num_temporary;  //锁定数字
+		printf("Lock:%d",Num_Lock);
+		sprintf((char * )lcdbuff,"Lock:%d",Num_Lock);
+		LCD_ShowString(4, 6, 160, 14, 14,lcdbuff);
+
 	  /*
 	  开始运行
 	  */	  
 		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,300);//
 		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,300);//
-	  //Motor_X(3);
+		Motor_X(1);
 	  while (1)
 	  {  
-		  if(Num_Lock <=2)
-		  {
-			  GOROOM1(Num_Lock);
-		  }
+		  	Motor_X(1);
+			LCD_ShowString(4, 26, 160, 14, 14,(uint8_t * )"Whit Cross1  ");
+			//**巡线等第一个十字
+			while(1)
+			{
+				i = Lock_Line();
+				if(i >2){break;}
+			}
+//		  if(Num_Lock <=2)
+//		  {
+//			  GOROOM1(Num_Lock);
+//		  }
 
 	
 	  }
@@ -570,21 +529,7 @@ void SystemClock_Config(void)
   }
 }
 
-/* USER CODE BEGIN 4 */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	//HAL_GPIO_TogglePin(E3_GPIO_Port,E3_Pin);
-    if(huart->Instance==USART2)
-    {
-        UART2_Rx_Buf[UART2_Rx_cnt] = UART2_temp[0];
-        UART2_Rx_cnt++;
-        if(0x0a == UART2_temp[0])
-        {
-            UART2_Rx_flg = 1;
-        }
 
-    }
-}
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 

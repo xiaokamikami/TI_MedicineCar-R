@@ -22,6 +22,10 @@
 
 /* USER CODE BEGIN 0 */
 #include "stdio.h"
+unsigned char UART2_Rx_Buf[MAX_REC_LENGTH] = {0}; //USART2存储接收数据
+unsigned char UART2_Rx_flg = 0;                   //USART2接收完成标志
+unsigned int  UART2_Rx_cnt = 0;                   //USART2接受数据计数器
+unsigned char UART2_temp[1] = {0};       //USART2接收数据缓存
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -248,7 +252,25 @@ void Usart_SendString(uint8_t *str)
   } while(*(str + k)!='\0');
   
 }
+/**
+  * @brief 串口中断回调函数		中断接收串口2的数据
+  * @param 调用回调函数的串口
+  * @note  串口每次收到数据以后都会关闭中断，如需重复使用，必须再次开启
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if(huart->Instance==USART2)
+    {
+        UART2_Rx_Buf[UART2_Rx_cnt] = UART2_temp[0];
+        UART2_Rx_cnt++;
+        if(0x0a == UART2_temp[0])
+        {
+            UART2_Rx_flg = 1;
+        }
 
+    }
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

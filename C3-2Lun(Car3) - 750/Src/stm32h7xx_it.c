@@ -210,10 +210,17 @@ void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
 
-  /* USER CODE END USART2_IRQn 0 */
-  HAL_UART_IRQHandler(&huart2);
-  /* USER CODE BEGIN USART2_IRQn 1 */
 
+  /* USER CODE END USART2_IRQn 0 */
+	HAL_UART_IRQHandler(&huart2);
+
+  /* USER CODE BEGIN USART2_IRQn 1 */
+//	    UART2_Rx_Buf[UART2_Rx_cnt] = UART2_temp[0];
+//        UART2_Rx_cnt++;
+//        if(0x0a == UART2_temp[0])
+//        {
+//            UART2_Rx_flg = 1;
+//        }
 
   /* USER CODE END USART2_IRQn 1 */
 }

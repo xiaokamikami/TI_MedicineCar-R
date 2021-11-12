@@ -35,6 +35,8 @@ extern "C" {
 #define u8 uint8_t 
 #define u16 uint16_t
 #define u32 uint32_t
+extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart2;
 void Turn_Set(uint8_t Mode);
 /* USER CODE END Includes */
 
