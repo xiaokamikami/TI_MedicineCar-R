@@ -11,15 +11,15 @@ u8 Res_num = 0;
 u8 Lock_Line(void )
 {
 	u8 Res_n = 0;
-	u8 SP_differential = 0;  //差速值储存
+	int16_t SP_differential = 0;  //差速值储存
 	Res_n = 0;
 	
-	if(HAL_GPIO_ReadPin(RE6_GPIO_Port,RE1_Pin)==1)	{SP_differential =30;Res_n+=1;}		//左偏限位
-	if(HAL_GPIO_ReadPin(RE5_GPIO_Port,RE2_Pin)==1)	{SP_differential =20;Res_n+=1;}	//左偏
-	if(HAL_GPIO_ReadPin(RE4_GPIO_Port,RE3_Pin)==1)	{SP_differential =10;Res_n+=1;}	//巡线中位
+	if(HAL_GPIO_ReadPin(RE6_GPIO_Port,RE1_Pin)==1)	{SP_differential =150;Res_n+=1;}		//左偏限位
+	if(HAL_GPIO_ReadPin(RE5_GPIO_Port,RE2_Pin)==1)	{SP_differential =100;Res_n+=1;}	//左偏
+	if(HAL_GPIO_ReadPin(RE4_GPIO_Port,RE3_Pin)==1)	{SP_differential =50;Res_n+=1;}	//巡线中位
 	if(HAL_GPIO_ReadPin(RE3_GPIO_Port,RE4_Pin)==1)	{SP_differential =0;Res_n+=1;}	//巡线中位
-	if(HAL_GPIO_ReadPin(RE2_GPIO_Port,RE5_Pin)==1)	{SP_differential =-10;Res_n+=1;}	//右偏	
-	if(HAL_GPIO_ReadPin(RE1_GPIO_Port,RE6_Pin)==1)	{SP_differential =-20;Res_n+=1;}		//右偏限
+	if(HAL_GPIO_ReadPin(RE2_GPIO_Port,RE5_Pin)==1)	{SP_differential =-50;Res_n+=1;}	//右偏	
+	if(HAL_GPIO_ReadPin(RE1_GPIO_Port,RE6_Pin)==1)	{SP_differential =-100;Res_n+=1;}		//右偏限
 	
 
 	if(Res_n == 0)

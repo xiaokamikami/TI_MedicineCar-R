@@ -351,9 +351,9 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM2_Init();
   MX_USART2_UART_Init();
-  MX_TIM6_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 	LCD_Test();
   	__HAL_UART_CLEAR_IDLEFLAG(&huart2);
@@ -372,7 +372,7 @@ int main(void)
 
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
-	HAL_TIM_Base_Start_IT(&htim6);                // 使能定时器中断(5ms)
+	HAL_TIM_Base_Stop_IT(&htim7);   
 //	for(i = 0;i<5;i++)
 //	{
 //		Motor_X(i);
@@ -405,6 +405,7 @@ int main(void)
 		HAL_Delay(200);
 	  }
 	  HAL_Delay(500);
+	  
 	  //重开任务返回点
 	  REMAKE:
 	  Num_Renum = 0;
@@ -437,7 +438,9 @@ int main(void)
 
 	  /*
 	  开始运行
-	  */	  
+	  */
+		HAL_Delay(100);
+//		HAL_TIM_Base_Start(&htim7);                // 使能定时器中断(20ms) 50hz		
 		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,300);//
 		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,300);//
 		Motor_X(1);
@@ -455,8 +458,11 @@ int main(void)
 //		  {
 //			  GOROOM1(Num_Lock);
 //		  }
-
-	
+ 
+//			mpu_dmp_get_data(&Gyro[2]);		    
+//			printf("Z=%.2f\r\n",Gyro[2]);
+//			HAL_Delay(50);
+	  
 	  }
 
 	printf("END！\r\n");
@@ -529,20 +535,16 @@ void SystemClock_Config(void)
   }
 }
 
-
+/* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 
-    if (htim == (&htim6))
-    {	//精简计算 只获取Z轴角度 
-		mpu_dmp_get_data(/*&Gyro[0],&Gyro[1],*/&Gyro[2]);  
-
-		//printf("X=%.2f,Y=%.2f,Z=%.2f\r\n",Gyro[0],Gyro[1],Gyro[2]);
-		//printf("Z=%.2f\r\n",Gyro[2]);
-    }
-
+    if (htim == (&htim7))
+    {	
+		mpu_dmp_get_data(&Gyro[2]);
+		printf("Z=%.2f\r\n",Gyro[2]);
+	}
 }
-
 /* USER CODE END 4 */
 
 /**
