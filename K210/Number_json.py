@@ -104,18 +104,25 @@ while (True):
                 drawConfidenceText(img, (0, 0), classID, confidence)
             _ = lcd.display(img)
 
+            #ball_dict["x"]   = print_args[0]
+            #ball_dict["v"]   = print_args[1]
+            #ball_dict["n"]  = (print_args[2]+1)
+
 
             if(confidence > 0.6):
-
+                #encoded = ujson.dumps(ball_dict)
+                #uart_stm32.write(encoded+"\n")
+                #print(encoded)
                 encoded = str('['+str((print_args[2]+1))+','+str(print_args[0]+100)+']')
                 uart_stm32.write(encoded+"\n")
-
+                #uart_stm32.write('['+str((print_args[2]+1))+str(print_args[0]+100)+']'+"\n")
+                #print(encoded)
                 if(clock.fps()<10):
                     pass
                 else:
                     time.sleep_ms(int(clock.fps()/10)*100)
                 #print(clock.fps())
-                #print(encoded)     #调试接口
+
 
 
 

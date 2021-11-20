@@ -67,6 +67,10 @@ void Error_Handler(void);
 #define E3_GPIO_Port GPIOE
 #define KEY_Pin GPIO_PIN_13
 #define KEY_GPIO_Port GPIOC
+#define RED_Pin GPIO_PIN_0
+#define RED_GPIO_Port GPIOC
+#define GREEN_Pin GPIO_PIN_1
+#define GREEN_GPIO_Port GPIOC
 #define RE1_Pin GPIO_PIN_2
 #define RE1_GPIO_Port GPIOA
 #define RE2_Pin GPIO_PIN_3

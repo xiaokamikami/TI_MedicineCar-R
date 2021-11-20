@@ -7,6 +7,9 @@
 
 u8 Lock_Line(void );
 void GOROOM1(u8 ROOM);
+void Yellow_LED(u8 i);
+void Red_LED(u8 i);
+void Green_LED(u8 i);
 //º¯ÊýÉùÃ÷
 
 

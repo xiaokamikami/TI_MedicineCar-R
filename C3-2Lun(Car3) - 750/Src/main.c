@@ -197,6 +197,9 @@ void Turn_Set(uint8_t Mode)
 {
 	uint16_t Z_Turn = 0;
 	float Z_Angle = 0;
+	//**转弯前加快速度
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,330);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,330);
 	if(Mode == 2)
 	{
 			Motor_X(0);
@@ -206,14 +209,14 @@ void Turn_Set(uint8_t Mode)
 			Motor_X(4);
 			if(Z_Angle <=91)
 			{
-				Z_Turn = Z_Angle +275;
+				Z_Turn = Z_Angle +280;
 				//重新判定
 				R1:
 				if(Gyro[2] >180)
 				{
 					while(1)
 					{		 
-						//mpu_dmp_get_data(&Gyro[2]);
+						mpu_dmp_get_data(&Gyro[2]);
 						//printf("RRRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
 						if(Gyro[2] < Z_Turn)
 						{
@@ -226,7 +229,7 @@ void Turn_Set(uint8_t Mode)
 				else
 				{
 					//printf("RRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
-					//mpu_dmp_get_data(&Gyro[2]);
+					mpu_dmp_get_data(&Gyro[2]);
 					goto R1;
 				}
 					
@@ -234,10 +237,10 @@ void Turn_Set(uint8_t Mode)
 			}
 			else
 			{
-				Z_Turn = Z_Angle -85;
+				Z_Turn = Z_Angle -80;
 				while(1)
 				{		 
-					//mpu_dmp_get_data(&Gyro[2]);
+					mpu_dmp_get_data(&Gyro[2]);
 					//printf("RF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
 					if(Gyro[2] < Z_Turn )
 					{
@@ -257,14 +260,14 @@ void Turn_Set(uint8_t Mode)
 			Motor_X(3);
 			if(Z_Angle >=271)
 			{
-				Z_Turn = Z_Angle -275;
+				Z_Turn = Z_Angle -280;
 				//重新判定
 				L1:
 				if(Gyro[2] < 180)
 				{
 					while(1 )
 					{
-						//mpu_dmp_get_data(&Gyro[2]);
+						mpu_dmp_get_data(&Gyro[2]);
 						//printf("LLLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
 						if(Gyro[2] > Z_Turn)
 						{
@@ -277,15 +280,16 @@ void Turn_Set(uint8_t Mode)
 				else
 				{
 					//printf("LLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
-					//mpu_dmp_get_data(&Gyro[2]);
+					mpu_dmp_get_data(&Gyro[2]);
 					goto L1;
 				}
 			}
 			else
 			{
-				Z_Turn = Z_Angle +85;
+				Z_Turn = Z_Angle +80;
 				while(1)
 				{
+					mpu_dmp_get_data(&Gyro[2]);
 					//printf("LF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
 					if(Gyro[2] > Z_Turn )
 					{
@@ -297,6 +301,9 @@ void Turn_Set(uint8_t Mode)
 			}	
 	}
 	Motor_X(0);
+	//**转弯完成恢复均速
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,320);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,320);
 }
 //***功能函数区
 
@@ -355,6 +362,7 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
+	Yellow_LED(0);
 	LCD_Test();
   	__HAL_UART_CLEAR_IDLEFLAG(&huart2);
 	
@@ -378,7 +386,7 @@ int main(void)
 //		Motor_X(i);
 //		HAL_Delay(1000);
 //	}
-	
+
 	//重新设置返回点
 	RESET:
 	  /*
@@ -409,6 +417,7 @@ int main(void)
 	  //重开任务返回点
 	  REMAKE:
 	  Num_Renum = 0;
+	  Yellow_LED(1);
 	  /*
 	  等待数字输入
 	  */
@@ -435,7 +444,7 @@ int main(void)
 		printf("Lock:%d",Num_Lock);
 		sprintf((char * )lcdbuff,"Lock:%d",Num_Lock);
 		LCD_ShowString(4, 6, 160, 14, 14,lcdbuff);
-
+		Yellow_LED(0);
 	  /*
 	  开始运行
 	  */
@@ -449,18 +458,25 @@ int main(void)
 		  	Motor_X(1);
 			LCD_ShowString(4, 26, 160, 14, 14,(uint8_t * )"Whit Cross1  ");
 			//**巡线等第一个十字
-			while(1)
-			{
-				i = Lock_Line();
-				if(i >2){break;}
-			}
-//		  if(Num_Lock <=2)
-//		  {
-//			  GOROOM1(Num_Lock);
-//		  }
- 
-//			mpu_dmp_get_data(&Gyro[2]);		    
+//			while(1)
+//			{
+//				i = Lock_Line();
+//				if(i >2){break;}
+//			}
+		  //****主程序
+		  if(Num_Lock <=2)
+		  {
+			  GOROOM1(Num_Lock);
+			  Num_Lock = 0;
+			  goto REMAKE;
+		  }
+//			mpu_dmp_get_data(&Gyro[2]);		    //调试用
 //			printf("Z=%.2f\r\n",Gyro[2]);
+		  //		  }
+//		  	Turn_Set(1);
+//		  	HAL_Delay(2000);
+//		 	Turn_Set(2);
+//		 	HAL_Delay(2000);
 //			HAL_Delay(50);
 	  
 	  }
