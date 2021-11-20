@@ -45,7 +45,6 @@
 
 //****串口变量***
 
-static float Gyro[3];
 
 static uint8_t lcdbuff[20]; //UART字符
 static char uart1_buff[20]; //UART字符
@@ -189,122 +188,7 @@ int fputc(int ch, FILE *f)
 
 
 
-/* 
-功能:转向90度		会提前5度停下防止过冲
-使用方式:1左2右
-*/
-void Turn_Set(uint8_t Mode)
-{
-	uint16_t Z_Turn = 0;
-	float Z_Angle = 0;
-	//**转弯前加快速度
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,330);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,330);
-	if(Mode == 2)
-	{
-			Motor_X(0);
-			//*** 右转90 度  MPU应该减小90       小于90的初始值  (越0跳360)转向目标值是LOCK+270  //LOCK+270 = 360+LOCK-90
-			mpu_dmp_get_data(&Gyro[2]);  
-			Z_Angle = Gyro[2];
-			Motor_X(4);
-			if(Z_Angle <=91)
-			{
-				Z_Turn = Z_Angle +280;
-				//重新判定
-				R1:
-				if(Gyro[2] >180)
-				{
-					while(1)
-					{		 
-						mpu_dmp_get_data(&Gyro[2]);
-						//printf("RRRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
-						if(Gyro[2] < Z_Turn)
-						{
-							Motor_X(0);
-							printf("R_END");
-							return;
-						}
-					}					
-				}
-				else
-				{
-					//printf("RRF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
-					mpu_dmp_get_data(&Gyro[2]);
-					goto R1;
-				}
-					
 
-			}
-			else
-			{
-				Z_Turn = Z_Angle -80;
-				while(1)
-				{		 
-					mpu_dmp_get_data(&Gyro[2]);
-					//printf("RF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
-					if(Gyro[2] < Z_Turn )
-					{
-						Motor_X(0);
-						printf("R_END");
-						return;
-					}
-				}
-			}	
-	}
-	else if(Mode == 1)
-	{
-			Motor_X(0);
-			//*** 左转90 度  MPU应该增加90   
-			mpu_dmp_get_data(&Gyro[2]);
-			Z_Angle = Gyro[2];
-			Motor_X(3);
-			if(Z_Angle >=271)
-			{
-				Z_Turn = Z_Angle -280;
-				//重新判定
-				L1:
-				if(Gyro[2] < 180)
-				{
-					while(1 )
-					{
-						mpu_dmp_get_data(&Gyro[2]);
-						//printf("LLLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
-						if(Gyro[2] > Z_Turn)
-						{
-							Motor_X(0);
-							printf("L_END");
-							return;
-						}		
-					}					
-				}
-				else
-				{
-					//printf("LLF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);	
-					mpu_dmp_get_data(&Gyro[2]);
-					goto L1;
-				}
-			}
-			else
-			{
-				Z_Turn = Z_Angle +80;
-				while(1)
-				{
-					mpu_dmp_get_data(&Gyro[2]);
-					//printf("LF:LOCK=%.2f,Z=%.2f,TAG:%d \r\n",Z_Angle,Gyro[2],Z_Turn);
-					if(Gyro[2] > Z_Turn )
-					{
-						Motor_X(0);
-						printf("L_END");
-						return;
-					}					
-				}			
-			}	
-	}
-	Motor_X(0);
-	//**转弯完成恢复均速
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,320);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,320);
-}
 //***功能函数区
 
 /* USER CODE END 0 */
@@ -375,8 +259,8 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	Motor_X(0);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,350);//调试用
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,350);//调试用
+//	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,350);//调试用
+//	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,350);//调试用
 
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
@@ -557,8 +441,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     if (htim == (&htim7))
     {	
-		mpu_dmp_get_data(&Gyro[2]);
-		printf("Z=%.2f\r\n",Gyro[2]);
+//		mpu_dmp_get_data(&Gyro[2]);
+//		printf("Z=%.2f\r\n",Gyro[2]);
 	}
 }
 /* USER CODE END 4 */

@@ -27,26 +27,14 @@ Project File Date:  11/20/2021
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'E:\Keil\ARM\ARMCC\Bin'
 Build target '03-LCD_Test'
-compiling main.c...
-..\Function\pid.h(4): warning:  #1-D: last line of file ends without a newline
-  float PID_Postion(int Infrared,int Target);    //Î»ÖÃPID¿ØÖÆÆ÷
-..\Function\GoRoom.h(17): warning:  #1-D: last line of file ends without a newline
-  #endif
-../Src/main.c(484): warning:  #111-D: statement is unreachable
-  	printf("END£¡\r\n");
-../Src/main.c(328): warning:  #177-D: variable "i"  was declared but never referenced
-  	int i =0;
-../Src/main.c(51): warning:  #177-D: variable "uart1_buff"  was declared but never referenced
-  static char uart1_buff[20]; //UART×Ö·û
-../Src/main.c(65): warning:  #177-D: function "Motor_Locat"  was declared but never referenced
-  static void Motor_Locat(int SpeedTarget1,int SpeedTarget2){
-../Src/main.c(146): warning:  #177-D: function "RTC_CalendarShow"  was declared but never referenced
-  static void RTC_CalendarShow(RTC_DateTypeDef *sdatestructureget,RTC_TimeTypeDef *stimestructureget)
-../Src/main.c: 7 warnings, 0 errors
+compiling GoRoom.c...
+..\Function\GoRoom.c(226): warning:  #177-D: variable "lcdbuff"  was declared but never referenced
+  	static uint8_t lcdbuff[20]; //LCD×Ö·û
+..\Function\GoRoom.c: 1 warning, 0 errors
 linking...
-Program Size: Code=45422 RO-data=32978 RW-data=264 ZI-data=4824  
+Program Size: Code=51466 RO-data=36390 RW-data=300 ZI-data=4764  
 FromELF: creating hex file...
-".\03-LCD_Test_0_96\03-LCD_Test_0_96.axf" - 0 Error(s), 7 Warning(s).
+".\03-LCD_Test_0_96\03-LCD_Test_0_96.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -69,7 +57,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.4.0
-Build Time Elapsed:  00:00:12
+Build Time Elapsed:  00:00:13
 </pre>
 </body>
 </html>
