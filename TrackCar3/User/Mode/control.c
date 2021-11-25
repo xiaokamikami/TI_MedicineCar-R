@@ -420,22 +420,22 @@ void CarTracking(void)
         switch (state) {
 
             /****维持向前行驶****/
-            case 8 :
-                angle = 65;
-                break;//左灯灭右偏，向左修正，角度越小左转向
+            case 1 :
+                angle = 100;
+                break;//右灯灭左偏，向右修正，角度越大右转向
+            case 2 :
+                angle = 85;
+                break;//右灯灭左偏，向右修正，角度越大右转向
             case 4 :
                 angle = 75;
                 break;//右灯灭左偏，向右修正，角度越大右转向
                 // /****维持****/
+            case 8 :
+                angle = 65;
+                break;//左灯灭右偏，向左修正，角度越小左转向
             case 16 :
                 angle = 55;
                 break;//左灯灭右偏，向左修正，角度越小左转向
-            case 2 :
-                angle = 85;
-                break;//右灯灭左偏，向右修正，角度越大右转向
-            case 1 :
-                angle = 100;
-                break;//右灯灭左偏，向右修正，角度越大右转向
             case 32 :
                 angle = 50;
                 break;//右灯灭左偏，向右修正，角度越大右转向
@@ -464,27 +464,23 @@ void CarBackTracking(void)
         switch (state) {
 
             /****维持向前行驶****/
-            case 1 :
-                angle = 50;
-                break;//左偏，向右修正
+
             case 2:
-                angle = 60;
+                angle = 70;
                 break;//右偏，向左修正
             case 4:
-                angle = 70;
+                angle = 75;
                 break;
             case 8:
                 angle = 80;
                 break;
             case 16 :
-                angle = 90;
-                break;//右灯灭左偏，向右修正，角度越大右转向
-            case 32 :
-                angle = 100;
+                angle = 85;
                 break;//右灯灭左偏，向右修正，角度越大右转向
 
+
         }
-                __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, angle);//输出小车角度值
+        __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, angle);//输出小车角度值
     } while (state != 0x0f);                                                //判断是否检测到一根红线
 }
 
@@ -562,7 +558,7 @@ void CarLeftTurn(void)      //小车左转  （后退加差数）
 *	返 回 值: 无
 *********************************************************************************************************
 */
-void CarRightTurn(void)      //小车右转  （后退加差数）
+void CarRightTurn(int TAG_count )      //小车右转  （后退加差数）
 {
 
     SpeedTarget = 120;                              //速度设置（转弯 速度慢）
@@ -574,7 +570,7 @@ void CarRightTurn(void)      //小车右转  （后退加差数）
     {
         MovingDirection = 3;                            //左差数
         printf("%d\r\n",MotorCouter1);
-        if(MotorCouter1 >3055 && MotorCouter2 > 3055)
+        if(MotorCouter1 >TAG_count && MotorCouter2 > TAG_count)
         {break;}
     }
     while(InfraredScan()<=1);
@@ -681,7 +677,7 @@ void BaseTwo(void)        //数字二
     CarBackDistance(700);
 
     //第二步 右转弯  带追平
-    CarRightTurn();
+    CarRightTurn(3070);
     printf("RF_OK");
     //第三步 巡线 检测病房入口
     //巡线
@@ -715,7 +711,7 @@ void BaseTwo(void)        //数字二
     CarBackDistance(350);
 
     //第二步 右转弯
-    CarRightTurn();
+    CarRightTurn(3000);
 
     //起步
     CarStart();
@@ -778,11 +774,11 @@ void BaseThree(void)      //数字三
     CarStart();
     HAL_Delay(200);
     //第二步 右转弯  带追平
-    CarRightTurn();
+    CarRightTurn(3070);
     //起步
     CarStart();
     HAL_Delay(300);
-    //巡线
+    //终点巡线
     CarCallTracking();
     CarStop();
     //点亮红灯
@@ -794,28 +790,34 @@ void BaseThree(void)      //数字三
     //**************************二阶
     //打开后退
     CarBackStraight();
+    //巡线  检测到第一个红线
+    //CarTracking();
     //回家巡线  检测到第一个红线（后退相反检测）
     CarBackTracking();
-    //后退一段距离
-    //CarBackDistance(1200);
+    CarStop();
     //起步
     CarStart();
-    HAL_Delay(200);
+    HAL_Delay(350);
     //右转
-    CarRightTurn();
+    CarRightTurn(2500);
     //*******回家巡线
     //起步
     CarStart();
+    HAL_Delay(100);
     //巡线  检测到第一个红线
     CarTracking();
-    HAL_Delay(500);
     //起步
     CarStart();
+    HAL_Delay(500);
     //终点巡线
     CarCallTracking();
+
+    //结束任务等待复位
     CarStop();
     //点亮绿灯
     HAL_GPIO_WritePin(Green_GPIO_Port,Green_Pin,RESET);
+    //点亮红灯
+    HAL_GPIO_WritePin(Red_GPIO_Port,Red_Pin,RESET);
     while (1);
 //
 }
