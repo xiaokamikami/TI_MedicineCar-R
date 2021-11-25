@@ -359,7 +359,6 @@ void CarBackDistance(uint16_t tag)
     MotorCouter1=0,MotorCouter2= 0;
     while ( 1)
     {
-
         MovingDirection = 2;
         if ( MotorCouter1 >tag && MotorCouter2 > tag)
         {break;}
@@ -399,7 +398,7 @@ void CarBackDistance(uint16_t tag)
 */
 void CarBackStraight(void)
 {
-    SpeedTarget = -500;                              //速度设置（巡线要快 抢时间）
+    SpeedTarget = -300;                              //速度设置（巡线要快 抢时间）
     MovingDirection = 2;                            //后退
     HAL_TIM_Base_Start_IT(&htim6);  // 开启定时器更新中断   开启电机
 }
@@ -458,7 +457,7 @@ void CarTracking(void)
 */
 void CarBackTracking(void)
 {
-    //第三步 巡线 检测病房入口             （未加入口后防抖动）！！！！！！！
+    //第三步 巡线             （未加入口后防抖动）！！！！！！！
     do                                              //初步的巡线
     {
         state = InfraredScan();//红外扫描,获取角度值
@@ -525,7 +524,7 @@ void CarCallTracking(void)
                 break;//右灯灭左偏，向右修正，角度越大右转向
         }
                 __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, angle);//输出小车角度值
-    } while (Idata <2);
+    } while (state !=0x0d);
 }
 
 
@@ -539,8 +538,6 @@ void CarCallTracking(void)
 */
 void CarLeftTurn(void)      //小车左转  （后退加差数）
 {
-    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, 65);//向右转
-    HAL_Delay(100);
     SpeedTarget = 120;                              //速度设置（转弯 速度慢）
     MovingDirection = 4;                            //左差数
     HAL_TIM_Base_Start_IT(&htim6);  // 开启定时器更新中断   开启电机
@@ -568,23 +565,21 @@ void CarLeftTurn(void)      //小车左转  （后退加差数）
 void CarRightTurn(void)      //小车右转  （后退加差数）
 {
 
-    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, 100);//向右转
-    HAL_Delay(100);
     SpeedTarget = 120;                              //速度设置（转弯 速度慢）
     MovingDirection = 3;                            //左差数
     HAL_TIM_Base_Start_IT(&htim6);  // 开启定时器更新中断   开启电机
     MotorCouter1 = 0,MotorCouter2 = 0;
-
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, 55);//输出小车角度值
     while (1 )
     {
         MovingDirection = 3;                            //左差数
         printf("%d\r\n",MotorCouter1);
-        if(MotorCouter1 >3600 && MotorCouter2 > 3600)
+        if(MotorCouter1 >3055 && MotorCouter2 > 3055)
         {break;}
     }
-
-    MovingDirection = 1;
-
+    while(InfraredScan()<=1);
+    CarStop();
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, 75);//输出小车角度值
 }
 
 
@@ -736,6 +731,7 @@ void BaseTwo(void)        //数字二
     //点亮绿灯
     HAL_GPIO_WritePin(Green_GPIO_Port,Green_Pin,RESET);
     while(1);
+
 }
 
 
@@ -743,26 +739,91 @@ void BaseThree(void)      //数字三
 {
     uint8_t  photo_y = 0;
     //第一步
+    //点亮绿灯
+    HAL_GPIO_WritePin(Green_GPIO_Port,Green_Pin,RESET);
+    //检测药物
+    while(HAL_GPIO_ReadPin(Medicine_GPIO_Port,Medicine_Pin) == SET);
+    //关绿灯
+    HAL_GPIO_WritePin(Green_GPIO_Port,Green_Pin,SET);
     //起步
     CarStart();
 
     //巡线  检测到第一个红线
     CarTracking();
-
-    HAL_Delay(500);
-
+    CarStop();
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 65);//输出相机角度值     右
+    HAL_Delay(800);
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 76);//输出相机角度值     左
+    HAL_Delay(800);
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 65);//输出相机角度值     右
+    HAL_Delay(800);
+    //起步
+    CarStart();
     //巡线  检测到第二个红线
     CarTracking();
-    //后退
-    CarBackDistance(1500);
-
     //摄像头检测 数字 舵机确认位置
-
+    CarStop();
     __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 65);//输出相机角度值     右
+    HAL_Delay(800);
     __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 76);//输出相机角度值     左
+    HAL_Delay(800);
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 65);//输出相机角度值     右
+    HAL_Delay(800);
     //判断是否在 这个路口 在左（1） 右（0） 不在（2）
-    photo_y = Camera();
-    if(photo_y == 1)       //在这个路口 左边
+    //打开后退
+    //CarBackStraight();
+    //后退计数
+    //CarBackDistance(1200);
+    //起步
+    CarStart();
+    HAL_Delay(200);
+    //第二步 右转弯  带追平
+    CarRightTurn();
+    //起步
+    CarStart();
+    HAL_Delay(300);
+    //巡线
+    CarCallTracking();
+    CarStop();
+    //点亮红灯
+    HAL_GPIO_WritePin(Red_GPIO_Port,Red_Pin,RESET);
+    //等待卸货
+    while(HAL_GPIO_ReadPin(Medicine_GPIO_Port,Medicine_Pin) == RESET);
+    //关红灯
+    HAL_GPIO_WritePin(Red_GPIO_Port,Red_Pin,SET);
+    //**************************二阶
+    //打开后退
+    CarBackStraight();
+    //回家巡线  检测到第一个红线（后退相反检测）
+    CarBackTracking();
+    //后退一段距离
+    //CarBackDistance(1200);
+    //起步
+    CarStart();
+    HAL_Delay(200);
+    //右转
+    CarRightTurn();
+    //*******回家巡线
+    //起步
+    CarStart();
+    //巡线  检测到第一个红线
+    CarTracking();
+    HAL_Delay(500);
+    //起步
+    CarStart();
+    //终点巡线
+    CarCallTracking();
+    CarStop();
+    //点亮绿灯
+    HAL_GPIO_WritePin(Green_GPIO_Port,Green_Pin,RESET);
+    while (1);
+//
+}
+
+void BaseFour(void)       //数字四
+{
+//photo_y = Camera();
+/*    if(photo_y == 1)       //在这个路口 左边
     {
         //第二步 左转弯
         CarLeftTurn();
@@ -1093,12 +1154,7 @@ void BaseThree(void)      //数字三
                 CarStop();
             }
         }
-    }
-}
-
-void BaseFour(void)       //数字四
-{
-
+    }*/
 }
 
 void BaseFive(void)       //数字五
